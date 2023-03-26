@@ -7,13 +7,13 @@ Deconstructing how session-based auth works.
 1. Send GET request to "http://localhost:4000/home"
 1. Sign up by sending a POST request to "http://localhost:4000/signup"
 1. Login by sending a POST request to "http://localhost:4000/login". If the
-   username and password combination is correct, then you receive a session id
-1. Send GET request to "http://localhost:4000/home" with the "Authorization"
-   header set ("Authorization: Bearer \<yoursessionid\>")
+   username and password combination is correct, then the server sends a cookie
+   with the session id
+1. Send GET request to "http://localhost:4000/home" with the "Cookies" header
+   set ("Cookie: sid=\<yoursessionid\>")
 
 ## Extra
 
-- [ ] Add the session session id as a cookie in the response header
 - [ ] Expiration for session id
 - [ ] Add a /logout endpoint and cancel the session
 - [ ] Permissions

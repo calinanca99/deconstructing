@@ -1,4 +1,10 @@
-use axum::{extract::State, headers::Cookie, Json, TypedHeader};
+use axum::{
+    extract::State,
+    headers::Cookie,
+    http::StatusCode,
+    response::{IntoResponse, Response},
+    Json, TypedHeader,
+};
 use std::{
     collections::hash_map::DefaultHasher,
     hash::{Hash, Hasher},
@@ -69,27 +75,42 @@ pub async fn signup(
 /// 1. Check if username and password combination is correct
 /// 2. Retrieve or create a new session session for the user
 /// 3. Return the session session id
-pub async fn login(State(state): State<AppState>, Json(payload): Json<LoginDetails>) -> String {
+pub async fn login(State(state): State<AppState>, Json(payload): Json<LoginDetails>) -> Response {
     let registered_users = state.registered_users.lock().unwrap();
+
+    let error_response = Response::builder()
+        .status(StatusCode::UNAUTHORIZED)
+        .header("Content-Type", "ext/plain; charset=utf-8")
+        .body("Username and password combination is wrong".to_string())
+        .unwrap();
 
     match registered_users.get(&payload.username) {
         Some(password) => {
             if *password != payload.password {
-                return "Username and password combination is wrong".to_string();
+                return error_response.into_response();
             }
 
             let mut sessions = state.sessions.lock().unwrap();
             let session = calculate_hash(&payload.username).to_string();
 
+            let session_cookie = format!("sid={}", session);
+
+            let ok_response = Response::builder()
+                .status(StatusCode::OK)
+                .header("Content-Type", "ext/plain; charset=utf-8")
+                .header("set-cookie", session_cookie)
+                .body("You're logged in".to_string())
+                .unwrap();
+
             if sessions.contains_key(&session) {
-                return session;
+                return ok_response.into_response();
             }
 
             sessions.insert(session.clone(), payload.username);
 
-            session
+            return ok_response.into_response();
         }
-        None => "Username and password combination is wrong".to_string(),
+        None => error_response.into_response(),
     }
 }
 
