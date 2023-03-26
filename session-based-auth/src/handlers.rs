@@ -18,7 +18,6 @@ use crate::{
 /// 3. Return user's data
 pub async fn home(
     State(state): State<AppState>,
-    // Can `authorization` be optional?
     authorization: Option<TypedHeader<Authorization<Bearer>>>,
 ) -> String {
     match authorization {
