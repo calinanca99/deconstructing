@@ -1,8 +1,4 @@
-use axum::{
-    extract::State,
-    headers::{authorization::Bearer, Authorization},
-    Json, TypedHeader,
-};
+use axum::{extract::State, headers::Cookie, Json, TypedHeader};
 use std::{
     collections::hash_map::DefaultHasher,
     hash::{Hash, Hasher},
@@ -13,26 +9,29 @@ use crate::{
     AppState,
 };
 
-/// 1. Verify if the request contains an "authorization" header
-/// 2. Extract the session id and see if it's associated with an user
-/// 3. Return user's data
-pub async fn home(
-    State(state): State<AppState>,
-    authorization: Option<TypedHeader<Authorization<Bearer>>>,
-) -> String {
-    match authorization {
+/// 1. Verify if the request contains cookies
+/// 2. Verify if the cookies contains the "sid" cookie
+/// 3. Extract the session id from the "sid" cookie and see if it's associated with an user
+/// 4. Return user's data
+pub async fn home(State(state): State<AppState>, cookies: Option<TypedHeader<Cookie>>) -> String {
+    match cookies {
         None => {
             "Not logged in. Log in by going to /login or create an account at /signup".to_string()
         }
-        Some(bearer_token) => {
-            let session = bearer_token.token().to_string();
-            let sessions = state.sessions.lock().unwrap();
-
-            if !sessions.contains_key(&session) {
-                return "Session is invalid".to_string();
+        Some(cookies) => {
+            if cookies.get("sid").is_none() {
+                return "Not logged in. Log in by going to /login or create an account at /signup"
+                    .to_string();
             }
 
-            let username = sessions.get(&session).unwrap().clone();
+            let session = cookies.get("sid").unwrap();
+            let sessions = state.sessions.lock().unwrap();
+
+            if !sessions.contains_key(session) {
+                return "Session is invalid. Please log in by going to /login".to_string();
+            }
+
+            let username = sessions.get(session).unwrap().clone();
             let users = state.users.lock().unwrap();
 
             let viewer = users.get(&username).expect("Unexpected failure");
