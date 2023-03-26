@@ -14,7 +14,7 @@ use crate::{
 };
 
 /// 1. Verify if the request contains an "authorization" header
-/// 2. Extract the session token and see if it's associated with an user
+/// 2. Extract the session id and see if it's associated with an user
 /// 3. Return user's data
 pub async fn home(
     State(state): State<AppState>,
@@ -25,15 +25,15 @@ pub async fn home(
         None => {
             "Not logged in. Log in by going to /login or create an account at /signup".to_string()
         }
-        Some(auth_token) => {
-            let token = auth_token.token().to_string();
-            let tokens = state.tokens.lock().unwrap();
+        Some(bearer_token) => {
+            let session = bearer_token.token().to_string();
+            let sessions = state.sessions.lock().unwrap();
 
-            if !tokens.contains_key(&token) {
-                return "Token is invalid".to_string();
+            if !sessions.contains_key(&session) {
+                return "Session is invalid".to_string();
             }
 
-            let username = tokens.get(&token).unwrap().clone();
+            let username = sessions.get(&session).unwrap().clone();
             let users = state.users.lock().unwrap();
 
             let viewer = users.get(&username).expect("Unexpected failure");
@@ -69,8 +69,8 @@ pub async fn signup(
 }
 
 /// 1. Check if username and password combination is correct
-/// 2. Retrieve or create a new session token for the user
-/// 3. Return the session token
+/// 2. Retrieve or create a new session session for the user
+/// 3. Return the session session id
 pub async fn login(State(state): State<AppState>, Json(payload): Json<LoginDetails>) -> String {
     let registered_users = state.registered_users.lock().unwrap();
 
@@ -80,16 +80,16 @@ pub async fn login(State(state): State<AppState>, Json(payload): Json<LoginDetai
                 return "Username and password combination is wrong".to_string();
             }
 
-            let mut tokens = state.tokens.lock().unwrap();
-            let token = calculate_hash(&payload.username).to_string();
+            let mut sessions = state.sessions.lock().unwrap();
+            let session = calculate_hash(&payload.username).to_string();
 
-            if tokens.contains_key(&token) {
-                return token;
+            if sessions.contains_key(&session) {
+                return session;
             }
 
-            tokens.insert(token.clone(), payload.username);
+            sessions.insert(session.clone(), payload.username);
 
-            token
+            session
         }
         None => "Username and password combination is wrong".to_string(),
     }

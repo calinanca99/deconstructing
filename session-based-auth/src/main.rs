@@ -7,7 +7,7 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use session_token::{
+use session_based_auth::{
     handlers::{home, login, signup},
     AppState,
 };
@@ -16,7 +16,7 @@ use session_token::{
 async fn main() {
     let state = AppState {
         registered_users: Arc::new(Mutex::new(HashMap::new())),
-        tokens: Arc::new(Mutex::new(HashMap::new())),
+        sessions: Arc::new(Mutex::new(HashMap::new())),
         users: Arc::new(Mutex::new(HashMap::new())),
     };
 

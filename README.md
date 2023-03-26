@@ -11,4 +11,4 @@ in mind when starting this:
 
 ## Contents
 
-1. [Session Tokens](./session-token/README.md)
+1. [Session-based auth](./session-based-auth/README.md)

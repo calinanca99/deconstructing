@@ -23,10 +23,10 @@ pub struct User {
     pub location: Option<String>,
 }
 
-pub type Token = String;
+pub type Session = String;
 pub type Username = String;
 pub type Password = String;
 
 pub type RegisteredUsers = HashMap<Username, Password>;
-pub type Tokens = HashMap<Token, Username>;
+pub type Sessions = HashMap<Session, Username>;
 pub type Users = HashMap<Username, User>;

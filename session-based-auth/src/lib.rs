@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex};
 
-use models::{RegisteredUsers, Tokens, Users};
+use models::{RegisteredUsers, Sessions, Users};
 
 pub mod handlers;
 pub mod models;
@@ -8,6 +8,6 @@ pub mod models;
 #[derive(Clone)]
 pub struct AppState {
     pub registered_users: Arc<Mutex<RegisteredUsers>>,
-    pub tokens: Arc<Mutex<Tokens>>,
+    pub sessions: Arc<Mutex<Sessions>>,
     pub users: Arc<Mutex<Users>>,
 }
