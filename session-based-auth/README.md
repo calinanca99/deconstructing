@@ -23,3 +23,4 @@ Deconstructing how session-based auth works.
 
 - [Difference between cookies, sessions and tokens](https://youtu.be/GhrvZ5nUWNg)
 - [HTTP Cookies Crash Course](https://youtu.be/sovAIX4doOE)
+- [Cookies - MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies)
